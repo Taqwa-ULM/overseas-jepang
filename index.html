@@ -1,0 +1,2016 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Al Mazaya Islamic School - Japan Overseas Math Expense Tracker</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Fredoka & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Export Libraries: SheetJS (Excel) & jsPDF (PDF) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        aptivo: {
+                            coral: '#E11D48',     // Sakura Crimson Red for Japan Edition
+                            peach: '#FB7185',     // Sakura Pink
+                            lightBg: '#F8FAFC',
+                            cardBg: '#FFFFFF',
+                            purple: '#9B51E0',
+                            blue: '#2F80ED',
+                            green: '#27AE60',
+                            yellow: '#F2C94C',
+                            mathBlue: '#4A90E2',
+                            mathPurple: '#8E44AD'
+                        }
+                    },
+                    fontFamily: {
+                        fredoka: ['Fredoka', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+        }
+        .font-display {
+            font-family: 'Fredoka', sans-serif;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.15);
+            border-radius: 10px;
+        }
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-4px) rotate(3deg); }
+        }
+        .animate-float {
+            animation: floatSlow 3s ease-in-out infinite;
+        }
+        .bento-card {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .bento-card:hover {
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-0 md:p-4 lg:p-6 bg-slate-900">
+
+    <!-- Main Responsive Container -->
+    <div class="w-full max-w-4xl min-h-screen md:min-h-[auto] md:max-h-[96vh] bg-slate-50 md:rounded-[36px] shadow-2xl overflow-y-auto flex flex-col relative border-0 md:border-[6px] border-slate-800">
+
+        <!-- Status Bar Header -->
+        <div class="px-5 pt-3 pb-2 flex justify-between items-center text-xs font-semibold text-slate-600 bg-slate-50/90 backdrop-blur-md sticky top-0 z-30 border-b border-slate-200/60">
+            <div class="flex items-center space-x-2">
+                <span id="currentTime">09:41</span>
+                <span class="text-[10px] bg-rose-100 text-rose-700 font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <i class="fa-solid fa-torii-gate text-[10px]"></i> Japan Edition 🇯🇵
+                </span>
+            </div>
+            <div class="w-16 h-3 bg-slate-800 rounded-full mx-auto hidden md:block"></div>
+            <div class="flex items-center space-x-2 text-slate-700">
+                <i class="fa-solid fa-signal text-xs"></i>
+                <i class="fa-solid fa-wifi text-xs"></i>
+                <i class="fa-solid fa-battery-full text-xs"></i>
+            </div>
+        </div>
+
+        <!-- APP CONTENT AREA -->
+        <div id="appContainer" class="flex-1 px-4 sm:px-6 pb-20 pt-3 space-y-5">
+
+            <!-- Mascot & Profile Header Card -->
+            <div id="mascotHeader" class="bg-gradient-to-r from-rose-600 via-aptivo-peach to-amber-500 rounded-3xl p-4 sm:p-6 text-white shadow-lg relative overflow-hidden">
+                <div class="absolute -right-4 -top-4 text-white/10 font-bold text-7xl select-none pointer-events-none">∑</div>
+                <div class="absolute right-24 -bottom-6 text-white/10 font-bold text-6xl select-none pointer-events-none">π</div>
+                <div class="absolute left-1/2 top-2 text-white/10 font-bold text-5xl select-none pointer-events-none">🌸</div>
+
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
+                    <div class="flex-1">
+                        <!-- Al Mazaya School Logo & Tag -->
+                        <div class="flex items-center space-x-3 mb-2">
+                            <div class="w-12 h-12 bg-white rounded-2xl p-1 shadow-md flex items-center justify-center shrink-0 border border-white/60">
+                                <svg viewBox="0 0 100 100" class="w-full h-full">
+                                    <polygon points="50,4 53,12 61,12 55,17 57,25 50,20 43,25 45,17 39,12 47,12" fill="#D4AF37" />
+                                    <path d="M 20 65 A 35 35 0 1 1 80 65" fill="none" stroke="#101B56" stroke-width="8" stroke-linecap="round"/>
+                                    <path d="M 26 65 A 30 30 0 1 1 74 65" fill="none" stroke="#C8102E" stroke-width="3" stroke-linecap="round"/>
+                                    <circle cx="50" cy="45" r="16" fill="#1E88E5" />
+                                    <path d="M 38 45 A 12 12 0 0 0 62 45" fill="none" stroke="#FFFFFF" stroke-width="1.5" />
+                                    <path d="M 50 29 A 12 12 0 0 0 50 61" fill="none" stroke="#FFFFFF" stroke-width="1.5" />
+                                    <ellipse cx="50" cy="45" rx="16" ry="6" fill="none" stroke="#FFFFFF" stroke-width="1.5"/>
+                                    <path d="M 30 65 Q 50 60 50 67 Q 50 60 70 65 L 70 73 Q 50 68 50 73 Q 50 68 30 73 Z" fill="#FFFFFF" stroke="#101B56" stroke-width="1.5" />
+                                    <path d="M 12 82 L 88 82 L 83 88 L 88 94 L 12 94 L 17 88 Z" fill="#101B56" />
+                                    <text x="50" y="90" font-family="Arial, sans-serif" font-size="5" font-weight="bold" fill="#FFFFFF" text-anchor="middle">AL MAZAYA ISLAMIC SCHOOL</text>
+                                </svg>
+                            </div>
+                            <div class="leading-tight">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <span class="text-[10px] uppercase tracking-wider font-extrabold text-amber-200 bg-black/30 px-2 py-0.5 rounded-md backdrop-blur-sm inline-block">
+                                        🇯🇵 Overseas Jepang
+                                    </span>
+                                    <span class="text-[10px] uppercase tracking-wider font-bold text-sky-200 bg-blue-900/40 px-2 py-0.5 rounded-md backdrop-blur-sm inline-block">
+                                        📐 Tugas Matematika
+                                    </span>
+                                </div>
+                                <p class="text-xs sm:text-sm font-bold text-white tracking-wide mt-0.5">AL MAZAYA ISLAMIC SCHOOL</p>
+                            </div>
+                        </div>
+
+                        <h1 class="text-xl sm:text-2xl font-bold font-display tracking-wide text-white mt-1" id="displayGreeting">Assalamu'alaikum! 👋</h1>
+                        <p class="text-xs sm:text-sm text-white/90 mt-0.5" id="displaySubtext">Lengkapi identitasmu lalu pilih menu di bawah ini.</p>
+                    </div>
+
+                    <!-- Math Mascot Widget -->
+                    <div class="flex flex-col items-center self-end sm:self-center shrink-0 cursor-pointer group" onclick="cycleMathMascot()" title="Klik untuk mengganti Mascot Matematika!">
+                        <div class="relative">
+                            <div id="mascotAvatarContainer" class="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-2xl flex items-center justify-center shadow-lg relative border-2 border-white/60 transition-transform group-hover:scale-105 group-active:scale-95 overflow-hidden">
+                                <div id="mascotSVG" class="w-full h-full flex items-center justify-center"></div>
+                            </div>
+                            <span id="mascotBadge" class="absolute -bottom-1.5 -right-1.5 bg-amber-400 text-slate-900 text-[11px] font-black w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow animate-float">
+                                π
+                            </span>
+                        </div>
+                        <span class="text-[10px] font-semibold text-white/90 bg-black/20 px-2 py-0.5 rounded-full mt-1 flex items-center gap-1 backdrop-blur-xs">
+                            <i class="fa-solid fa-arrows-rotate text-[9px]"></i> <span id="mascotNameTag">Sakura Math</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Murid Identity Box (Always Visible at Top) -->
+            <div class="bg-white rounded-3xl p-4 sm:p-5 shadow-sm border border-slate-200/80">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 rounded-full bg-rose-100 text-aptivo-coral flex items-center justify-center font-bold text-sm">
+                            <i class="fa-solid fa-user-graduate"></i>
+                        </div>
+                        <h2 class="font-display font-bold text-slate-800 text-sm sm:text-base">Identitas Murid (Program Jepang)</h2>
+                    </div>
+                    <button id="btnEditIdentity" onclick="toggleEditIdentity()" class="text-xs font-semibold text-aptivo-coral hover:underline bg-rose-50 px-3 py-1 rounded-xl transition">
+                        Ubah
+                    </button>
+                </div>
+
+                <div id="identityInputs" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Lengkap / Panggilan Murid</label>
+                        <input type="text" id="inputNama" list="studentNamesList" placeholder="Ketik panggilan (contoh: Alif / Nasya / Faiha / Alfian)" class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:border-aptivo-coral transition" oninput="saveIdentityLocal()">
+                        <datalist id="studentNamesList">
+                            <option value="M. Alif Rizqullah">Kelas 11.1</option>
+                            <option value="Nafil Zaki Faisal">Kelas 11.1</option>
+                            <option value="M. Salman Al Farisi">Kelas 11.1</option>
+                            <option value="Fatimatuz Azzahra">Kelas 11.2</option>
+                            <option value="Az Zeta Keira Effendi">Kelas 11.2</option>
+                            <option value="Kaila Zaskiah Imannina">Kelas 11.2</option>
+                            <option value="M. Dika Firdaus">Kelas 11.2</option>
+                            <option value="Syahrini Alica Putri">Kelas 11.2</option>
+                            <option value="Aliya Saputri">Kelas 11.2</option>
+                            <option value="Keysha Aurelia Yusuf">Kelas 11.2</option>
+                            <option value="M. Abid Musyaffa">Kelas 11.3</option>
+                            <option value="Aufa Bil Ahdi">Kelas 11.3</option>
+                            <option value="Irfan Hafizha">Kelas 11.3</option>
+                            <option value="Putri Asma Ramadhani">Kelas 11.3</option>
+                            <option value="Ahmad Syauqi Abrari">Kelas 11.3</option>
+                            <option value="A. Cirrus Sangjaya Lampan Kr. Moncong">Kelas 11.3</option>
+                            <option value="Nasya Salsa Balqis Aurora">Kelas 11.3</option>
+                            <option value="Ilya Namira Adinda">Kelas 11.3</option>
+                            <option value="Faiha Adzkia Nafisa Putri">Kelas 8.1</option>
+                            <option value="Ghifary Habibi">Kelas 8.3</option>
+                            <option value="M. Alfian Rizqullah">Kelas 8.2</option>
+                            <option value="M. Hafiz Ken Arka">Kelas 9.3</option>
+                            <option value="M. Dafi Surya Rizky">Kelas 8.2</option>
+                        </datalist>
+                        <!-- Live Detected Full Name Badge -->
+                        <div id="detectedNameBadge" class="hidden mt-2 p-2 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center gap-1.5 font-medium">
+                            <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                            <span>Terdeteksi: <strong id="detectedFullNameText">-</strong> (<span id="detectedClassText">-</span>)</span>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-1">*Nama lengkap & sheet milikmu akan terdeteksi otomatis saat mengetik nama panggilan.</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Kelas</label>
+                        <input type="text" id="inputKelas" placeholder="Contoh: 11.1 / 8.1 / 9.3" class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:border-aptivo-coral transition" oninput="saveIdentityLocal()">
+                    </div>
+                </div>
+
+                <div id="identitySummary" class="hidden p-3 bg-rose-50/70 rounded-2xl border border-rose-100 flex justify-between items-center">
+                    <div>
+                        <p class="text-xs font-bold text-slate-800" id="summaryNama">Nama: -</p>
+                        <p class="text-[11px] text-slate-500" id="summaryKelas">Kelas: -</p>
+                    </div>
+                    <span class="text-xs font-semibold bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full flex items-center gap-1">
+                        <i class="fa-solid fa-circle-check text-[10px]"></i> Identitas Aktif
+                    </span>
+                </div>
+            </div>
+
+            <!-- MENU HUB: BENTO CARDS SELECTOR -->
+            <div class="space-y-2">
+                <div class="flex items-center justify-between px-1">
+                    <h3 class="font-display font-bold text-xs uppercase tracking-wider text-slate-500">Pilih Menu Utama</h3>
+                    <span class="text-[11px] text-rose-600 font-semibold bg-rose-50 px-2 py-0.5 rounded-md">Al Mazaya Japan Hub</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+
+                    <!-- Card 1: Input Data Pengeluaran -->
+                    <div id="menuCardForm" onclick="switchViewSection('form')" class="bento-card cursor-pointer rounded-3xl p-4 sm:p-5 border-2 transition-all relative overflow-hidden bg-gradient-to-br from-rose-50/80 via-white to-orange-50/60 border-aptivo-coral shadow-md">
+                        <div class="absolute -right-3 -bottom-3 text-rose-500/10 text-6xl font-black">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </div>
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-aptivo-coral to-aptivo-peach text-white flex items-center justify-center font-bold text-xl shadow-md">
+                                <i class="fa-solid fa-file-circle-plus"></i>
+                            </div>
+                            <span id="badgeFormActive" class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-aptivo-coral text-white shadow-xs">
+                                <i class="fa-solid fa-check mr-0.5"></i> Dibuka
+                            </span>
+                        </div>
+                        <h4 class="font-display font-bold text-slate-800 text-base">Input Data Pengeluaran</h4>
+                        <p class="text-xs text-slate-500 mt-1 leading-snug">Catat item belanja di Jepang, tanggal, harga (Rp/¥ Yen), dan upload foto belanjaan + struk.</p>
+                    </div>
+
+                    <!-- Card 2: Dashboard & Analisis -->
+                    <div id="menuCardDash" onclick="switchViewSection('dashboard')" class="bento-card cursor-pointer rounded-3xl p-4 sm:p-5 border-2 transition-all relative overflow-hidden bg-white hover:bg-slate-50 border-slate-200/80 shadow-sm">
+                        <div class="absolute -right-3 -bottom-3 text-indigo-500/10 text-6xl font-black">
+                            <i class="fa-solid fa-chart-pie"></i>
+                        </div>
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xl shadow-md">
+                                <i class="fa-solid fa-chart-column"></i>
+                            </div>
+                            <span id="badgeDashActive" class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-500">
+                                Password: AMZ
+                            </span>
+                        </div>
+                        <h4 class="font-display font-bold text-slate-800 text-base">Dashboard & Analisis</h4>
+                        <p class="text-xs text-slate-500 mt-1 leading-snug">Lihat rekapan tabel sheet, total belanja, & kalkulator kurs Yen Jepang (¥).</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- DYNAMIC WORKSPACE SECTION -->
+            <div id="workspaceSection" class="pt-2">
+
+                <!-- VIEW 1: FORM INPUT SECTION -->
+                <div id="viewForm" class="space-y-5">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+                        <!-- Expense Input Form -->
+                        <form id="formPengeluaran" onsubmit="handleFormSubmit(event)" class="lg:col-span-7 bg-white rounded-3xl p-4 sm:p-5 shadow-sm border border-slate-200/80 space-y-4">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-8 h-8 rounded-full bg-rose-100 text-aptivo-coral flex items-center justify-center font-bold text-sm">
+                                        <i class="fa-solid fa-receipt"></i>
+                                    </div>
+                                    <h2 class="font-display font-bold text-slate-800">Form Jurnal Pengeluaran</h2>
+                                </div>
+                                <span class="text-[11px] bg-slate-100 font-medium px-2.5 py-0.5 rounded-full text-slate-600">
+                                    📊 Auto Sheet Jepang
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Hari & Tanggal</label>
+                                    <input type="date" id="inputTanggal" required class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:border-aptivo-coral transition">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Tempat Pembelian</label>
+                                    <input type="text" id="inputTempat" placeholder="Misal: Shibuya / Don Quijote / 7-Eleven" required class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:border-aptivo-coral transition">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Makanan / Barang</label>
+                                <input type="text" id="inputBarang" placeholder="Misal: Takoyaki / Matcha KitKat / Gantungan Kunci" required class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:border-aptivo-coral transition">
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Jenis Pengeluaran</label>
+                                    <select id="inputJenis" required class="w-full px-3 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium focus:outline-none focus:border-aptivo-coral transition">
+                                        <option value="food">🍱 Food</option>
+                                        <option value="drinks">🥤 Drinks</option>
+                                        <option value="fashion">👕 Fashion</option>
+                                        <option value="toys">🧸 Toys</option>
+                                        <option value="Oleh-oleh (etc.)">🎁 Oleh-oleh (etc.)</option>
+                                        <option value="Lainnya">📦 Lainnya</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Banyaknya (Qty)</label>
+                                    <input type="number" id="inputBanyak" min="1" value="1" required class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:border-aptivo-coral transition">
+                                </div>
+                            </div>
+
+                            <!-- Currency Choice & Nominal -->
+                            <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <label class="block text-xs font-semibold text-slate-700">Pilih Mata Uang & Harga</label>
+                                    <span class="text-[10px] text-slate-400">Konversi Penugasan MTK</span>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button type="button" id="btnCurrencyRupiah" onclick="setCurrency('RUPIAH')" class="py-2.5 px-3 rounded-xl font-display font-semibold text-xs border flex items-center justify-center gap-1.5 transition bg-aptivo-coral text-white border-aptivo-coral shadow-sm">
+                                        <span>🇮🇩 Indonesia (Rp)</span>
+                                    </button>
+                                    <button type="button" id="btnCurrencyYen" onclick="setCurrency('YEN')" class="py-2.5 px-3 rounded-xl font-display font-semibold text-xs border flex items-center justify-center gap-1.5 transition bg-white text-slate-600 border-slate-200 hover:bg-slate-100">
+                                        <span>🇯🇵 Jepang (¥ Yen)</span>
+                                    </button>
+                                </div>
+
+                                <div class="relative">
+                                    <span id="currencySymbol" class="absolute left-3.5 top-2.5 font-bold text-slate-500 text-sm">Rp</span>
+                                    <input type="number" id="inputHarga" min="0" placeholder="0" required class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-semibold focus:outline-none focus:border-aptivo-coral transition">
+                                </div>
+                            </div>
+
+                            <!-- Photo Upload Section -->
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">
+                                    <i class="fa-solid fa-camera text-aptivo-coral mr-1"></i> Foto Belanjaan (Barang/Makanan) & Struk
+                                </label>
+                                <input type="file" id="inputFotoFile" accept="image/*" class="hidden" onchange="handleFileSelect(event)">
+                                <div id="uploadDropzone" onclick="document.getElementById('inputFotoFile').click()" class="border-2 border-dashed border-slate-200 hover:border-aptivo-coral rounded-2xl p-4 text-center cursor-pointer bg-slate-50 hover:bg-rose-50/50 transition">
+                                    <div id="uploadPlaceholder" class="space-y-1">
+                                        <div class="w-10 h-10 rounded-full bg-rose-100 text-aptivo-coral flex items-center justify-center mx-auto text-lg">
+                                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                                        </div>
+                                        <p class="text-xs font-semibold text-slate-700">Ambil Foto Barang/Makanan + Struk Pembelian</p>
+                                        <p class="text-[10px] text-slate-400">Foto belanjaan dan letakkan nota/struk di sampingnya jika ada</p>
+                                    </div>
+                                    <div id="previewContainer" class="hidden relative">
+                                        <img id="imagePreview" src="" alt="Preview Dokumentasi Belanjaan" class="w-full h-44 object-cover rounded-xl shadow-sm border border-slate-200">
+                                        <button type="button" onclick="removePhoto(event)" class="absolute top-2 right-2 bg-slate-900/80 hover:bg-rose-600 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs backdrop-blur-sm transition">
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </button>
+                                        <span class="inline-block mt-2 text-[10px] bg-emerald-100 text-emerald-700 px-2.5 py-0.5 rounded-full font-semibold">
+                                            <i class="fa-solid fa-check mr-1"></i>Foto Siap Diupload
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" id="btnSubmit" class="w-full py-3.5 bg-gradient-to-r from-aptivo-coral to-aptivo-peach hover:opacity-95 text-white font-display font-bold rounded-2xl shadow-lg shadow-rose-500/20 active:scale-[0.98] transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                <span>Kirim ke Spreadsheet</span>
+                            </button>
+                        </form>
+
+                        <!-- Right Column (Math Project Summary & Instructions) -->
+                        <div class="lg:col-span-5 space-y-5">
+                            <div class="bg-gradient-to-br from-indigo-900 to-slate-800 rounded-3xl p-5 text-white shadow-sm space-y-3">
+                                <div class="flex items-center justify-between border-b border-indigo-700/50 pb-2.5">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-8 h-8 rounded-xl bg-indigo-500/30 text-amber-300 flex items-center justify-center font-bold text-sm">
+                                            <i class="fa-solid fa-square-root-variable"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="font-display font-bold text-sm text-white">Ringkasan Tugas MTK</h3>
+                                            <p class="text-[10px] text-indigo-200">Pencatatan Keuangan Overseas Jepang</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-amber-300 bg-amber-400/20 px-2 py-0.5 rounded-md">
+                                        23 Murid
+                                    </span>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-2 text-xs">
+                                    <div class="bg-white/10 rounded-2xl p-2.5 backdrop-blur-sm">
+                                        <p class="text-[10px] text-indigo-200">Target Sheet</p>
+                                        <p class="font-bold text-white text-xs mt-0.5 truncate" id="statTargetNama">Tab Nama Murid</p>
+                                    </div>
+                                    <div class="bg-white/10 rounded-2xl p-2.5 backdrop-blur-sm">
+                                        <p class="text-[10px] text-indigo-200">Format Nilai</p>
+                                        <p class="font-bold text-white text-xs mt-0.5">Rupiah (Rp) / Yen (¥)</p>
+                                    </div>
+                                </div>
+
+                                <p class="text-[11px] text-indigo-200/90 leading-relaxed bg-black/20 p-2.5 rounded-xl border border-white/5">
+                                    💡 <b>Otomatis Masuk & Gambar:</b> Foto & nominal pengeluaran langsung tersimpan di sheet milik nama kamu. Buka menu <b>Dashboard & Analisis</b> untuk melihat rincian tabel & statistik!
+                                </p>
+                            </div>
+
+                            <!-- Instructions -->
+                            <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
+                                <div class="flex items-center space-x-2 border-b border-slate-100 pb-2.5">
+                                    <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-sm">
+                                        <i class="fa-solid fa-circle-info"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-display font-bold text-xs text-slate-800">Petunjuk Pengisian Murid</h3>
+                                        <p class="text-[10px] text-slate-500">Al Mazaya Japan Math Project</p>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2 text-xs text-slate-600 leading-relaxed">
+                                    <div class="flex items-start gap-2">
+                                        <span class="w-5 h-5 rounded-full bg-amber-100 text-amber-700 font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">1</span>
+                                        <p>Isi <b>Nama Lengkap / Panggilan</b> & <b>Kelas</b> pada identitas di atas.</p>
+                                    </div>
+                                    <div class="flex items-start gap-2">
+                                        <span class="w-5 h-5 rounded-full bg-amber-100 text-amber-700 font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">2</span>
+                                        <p>Pilih mata uang <b>Rupiah (Rp)</b> atau <b>Yen Jepang (¥)</b> sesuai transaksi.</p>
+                                    </div>
+                                    <div class="flex items-start gap-2">
+                                        <span class="w-5 h-5 rounded-full bg-amber-100 text-amber-700 font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">3</span>
+                                        <p>Unggah foto <b>barang/makanan belanjaan</b> dan letakkan <b>struk/nota</b> di sampingnya jika ada.</p>
+                                    </div>
+                                    <div class="flex items-start gap-2">
+                                        <span class="w-5 h-5 rounded-full bg-amber-100 text-amber-700 font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">4</span>
+                                        <p>Buka <b>Dashboard & Analisis</b> (Password: <code class="bg-slate-100 px-1 py-0.5 rounded text-amber-600 font-bold">AMZ</code>) untuk cek rekapan.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 2: MURID & ADMIN DASHBOARD SECTION -->
+                <div id="viewDashboard" class="hidden space-y-5">
+
+                    <!-- Login Modal Overlay (When not logged in) -->
+                    <div id="dashLoginModal" class="bg-white rounded-3xl p-6 shadow-xl border border-rose-100 text-center max-w-md mx-auto space-y-4 my-2">
+                        <div class="w-16 h-16 bg-gradient-to-tr from-aptivo-coral to-amber-400 rounded-3xl text-white flex items-center justify-center text-2xl mx-auto shadow-md">
+                            <i class="fa-solid fa-lock"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-display font-bold text-slate-800 text-xl">Akses Dashboard Jepang</h2>
+                            <p class="text-xs text-slate-500 mt-1">Masukkan Nama Panggilan & Kode Akses untuk melihat statistik & rekapan transaksi.</p>
+                        </div>
+
+                        <form onsubmit="handleDashboardLogin(event)" class="space-y-3 text-left">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Panggilan Murid / User ID</label>
+                                <input type="text" id="dashInputNama" placeholder="Contoh: Alif / Nafil / Zeta" required class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:border-aptivo-coral transition">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Password Akses</label>
+                                <input type="password" id="dashInputPassword" placeholder="Kode Akses" required class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:border-aptivo-coral transition">
+                                <p class="text-[10px] text-amber-600 font-medium mt-1">*Password default murid: <b>AMZ</b> (Guru: <b>admin</b>)</p>
+                            </div>
+                            <button type="submit" class="w-full py-3 bg-aptivo-coral hover:bg-rose-700 text-white font-display font-bold rounded-2xl shadow-md transition">
+                                Buka Dashboard <i class="fa-solid fa-arrow-right ml-1"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- ADMIN DASHBOARD PANEL (Unlocked when logging in as admin) -->
+                    <div id="adminMainContent" class="hidden space-y-5">
+                        <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-5 shadow-lg border border-indigo-800/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 rounded-2xl bg-amber-400 text-slate-900 flex items-center justify-center font-black text-xl shrink-0 shadow-md">
+                                    <i class="fa-solid fa-user-shield"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h2 class="font-display font-bold text-white text-lg">Panel Administrator Guru</h2>
+                                        <span class="bg-amber-400/20 text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-400/30">
+                                            Overseas Jepang 🇯🇵
+                                        </span>
+                                    </div>
+                                    <p class="text-xs text-indigo-200">Rekapitulasi Seluruh Jurnal Murid Overseas Jepang (23 Murid)</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center space-x-2 self-end sm:self-auto">
+                                <button onclick="fetchAdminData()" class="text-xs bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-xl font-semibold flex items-center gap-1.5 backdrop-blur-sm transition">
+                                    <i class="fa-solid fa-rotate-right" id="adminSyncIcon"></i> Refresh Rekap
+                                </button>
+                                <button onclick="logoutDashboard()" class="text-xs bg-rose-500/30 hover:bg-rose-500/50 text-rose-200 px-3 py-2 rounded-xl font-semibold border border-rose-500/40 transition">
+                                    <i class="fa-solid fa-right-from-bracket"></i> Keluar
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Admin Global Summary Cards -->
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                            <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-1">
+                                <span class="text-[11px] font-semibold text-slate-400">Total Murid</span>
+                                <p class="text-2xl font-display font-bold text-slate-800" id="adminStatTotalMurid">23</p>
+                                <p class="text-[10px] text-slate-400">Database Resmi Jepang</p>
+                            </div>
+                            <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-1">
+                                <span class="text-[11px] font-semibold text-slate-400">Sudah Mengumpul</span>
+                                <p class="text-2xl font-display font-bold text-emerald-600" id="adminStatSubmittedCount">0 / 23</p>
+                                <p class="text-[10px] text-slate-400">Telah Mengisi Jurnal</p>
+                            </div>
+                            <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-1">
+                                <span class="text-[11px] font-semibold text-slate-400">Total Yen (¥) All</span>
+                                <p class="text-2xl font-display font-bold text-rose-600" id="adminStatGrandYen">¥0</p>
+                                <p class="text-[10px] text-slate-400">Pengeluaran Gabungan</p>
+                            </div>
+                            <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-1">
+                                <span class="text-[11px] font-semibold text-slate-400">Total Rupiah (Rp) All</span>
+                                <p class="text-lg sm:text-xl font-display font-bold text-indigo-600" id="adminStatGrandRupiah">Rp 0</p>
+                                <p class="text-[10px] text-slate-400">Total Konversi Est.</p>
+                            </div>
+                        </div>
+
+                        <!-- All Students Submission Grid List -->
+                        <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-4">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                                <div>
+                                    <h3 class="font-display font-bold text-slate-800 text-sm sm:text-base">Status Pengumpulan Jurnal Murid (23 Murid)</h3>
+                                    <p class="text-xs text-slate-500">Klik tombol "Inspeksi Jurnal" pada nama murid untuk melihat detail transaksi mereka.</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <button onclick="exportAllStudentsExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition">
+                                        <i class="fa-solid fa-file-excel"></i> Export Semua (Excel)
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3" id="adminStudentsGrid">
+                                <!-- Dynamic Student Status Cards Loaded Here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STUDENT DASHBOARD CONTENT AREA (Unlocked after normal login) -->
+                    <div id="dashMainContent" class="hidden space-y-5">
+
+                        <!-- Dashboard Top Bar / User Status -->
+                        <div class="bg-white rounded-3xl p-4 sm:p-5 shadow-sm border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-lg shrink-0">
+                                    <i class="fa-solid fa-chart-line"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h2 class="font-display font-bold text-slate-800 text-base" id="dashUserDisplay">Dashboard Murid</h2>
+                                        <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                            <i class="fa-solid fa-circle text-[8px] text-emerald-500 mr-1"></i> Terhubung
+                                        </span>
+                                    </div>
+                                    <p class="text-xs text-slate-500" id="dashClassDisplay">Kelas: - | Mapel Matematika Al Mazaya</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center space-x-2 self-end sm:self-auto">
+                                <button id="btnAdminReturn" onclick="returnToAdminView()" class="hidden text-xs bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-2 rounded-xl font-bold transition">
+                                    <i class="fa-solid fa-arrow-left mr-1"></i> Ke Panel Admin
+                                </button>
+                                <button onclick="refreshDashboardData()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl font-semibold flex items-center gap-1.5 transition">
+                                    <i class="fa-solid fa-rotate-right" id="dashSyncIcon"></i> Refresh Data
+                                </button>
+                                <button onclick="logoutDashboard()" class="text-xs bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-2 rounded-xl font-semibold transition">
+                                    <i class="fa-solid fa-right-from-bracket"></i> Keluar
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Statistics Summary Grid Cards -->
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                            <!-- Stat Card 1: Total Transaksi -->
+                            <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-1">
+                                <div class="flex justify-between items-center text-slate-400">
+                                    <span class="text-[11px] font-semibold">Total Item</span>
+                                    <i class="fa-solid fa-receipt text-amber-500 text-sm"></i>
+                                </div>
+                                <p class="text-xl sm:text-2xl font-display font-bold text-slate-800" id="statTotalItems">0</p>
+                                <p class="text-[10px] text-slate-400">Pencatatan Belanja</p>
+                            </div>
+
+                            <!-- Stat Card 2: Total Yen -->
+                            <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-1">
+                                <div class="flex justify-between items-center text-slate-400">
+                                    <span class="text-[11px] font-semibold">Total Yen (¥)</span>
+                                    <span class="font-bold text-xs text-rose-500">🇯🇵 ¥</span>
+                                </div>
+                                <p class="text-xl sm:text-2xl font-display font-bold text-rose-600" id="statTotalYen">¥0</p>
+                                <p class="text-[10px] text-slate-400">Mata Uang Jepang</p>
+                            </div>
+
+                            <!-- Stat Card 3: Total Rupiah Converted -->
+                            <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-1">
+                                <div class="flex justify-between items-center text-slate-400">
+                                    <span class="text-[11px] font-semibold">Total Rupiah (Rp)</span>
+                                    <span class="font-bold text-xs text-emerald-500">🇮🇩 Rp</span>
+                                </div>
+                                <p class="text-lg sm:text-xl font-display font-bold text-emerald-600" id="statTotalRupiah">Rp 0</p>
+                                <p class="text-[10px] text-slate-400">Total Konversi Est.</p>
+                            </div>
+
+                            <!-- Stat Card 4: Kategori Dominan -->
+                            <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-1">
+                                <div class="flex justify-between items-center text-slate-400">
+                                    <span class="text-[11px] font-semibold">Top Kategori</span>
+                                    <i class="fa-solid fa-chart-pie text-indigo-500 text-sm"></i>
+                                </div>
+                                <p class="text-base sm:text-lg font-display font-bold text-slate-800 truncate" id="statTopCategory">-</p>
+                                <p class="text-[10px] text-slate-400">Paling Sering Dibeli</p>
+                            </div>
+                        </div>
+
+                        <!-- Currency Converter Tool & Category Breakdown Grid -->
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+                            <!-- Currency Converter Widget -->
+                            <div class="lg:col-span-5 bg-gradient-to-br from-slate-900 to-indigo-950 text-white rounded-3xl p-5 shadow-sm space-y-4">
+                                <div class="flex items-center justify-between border-b border-indigo-800/60 pb-3">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-8 h-8 rounded-xl bg-amber-400/20 text-amber-300 flex items-center justify-center font-bold text-sm">
+                                            <i class="fa-solid fa-calculator"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="font-display font-bold text-sm text-white">Kalkulator Kurs Jepang</h3>
+                                            <p class="text-[10px] text-indigo-200">Konversi Cepat Yen (¥) ↔ IDR (Rp)</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-emerald-300 bg-emerald-500/20 px-2 py-0.5 rounded-md">
+                                        Real-time
+                                    </span>
+                                </div>
+
+                                <div class="space-y-3">
+                                    <!-- Exchange Rate Setting Input -->
+                                    <div class="flex items-center justify-between text-xs bg-black/20 p-2.5 rounded-2xl border border-white/10">
+                                        <span class="text-indigo-200">Patokan Kurs (1 Yen ¥):</span>
+                                        <div class="flex items-center space-x-1">
+                                            <span class="text-amber-300 font-bold">Rp</span>
+                                            <input type="number" step="0.01" id="calcRateInput" value="115.35" oninput="renderDashboardData()" class="w-20 px-2 py-1 bg-slate-800 text-white font-bold rounded-lg text-right text-xs focus:outline-none focus:ring-1 focus:ring-amber-400">
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <div>
+                                            <label class="block text-[10px] font-semibold text-indigo-200 mb-1">Nominal Yen (🇯🇵 ¥)</label>
+                                            <input type="number" id="calcYenInput" placeholder="0" oninput="convertYenToRp()" class="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-xl text-white font-bold text-sm focus:outline-none focus:border-amber-400">
+                                        </div>
+
+                                        <div class="text-center text-indigo-300 text-xs">
+                                            <i class="fa-solid fa-arrow-down-up-lock"></i>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-[10px] font-semibold text-indigo-200 mb-1">Hasil Konversi Rupiah (🇮🇩 Rp)</label>
+                                            <input type="text" id="calcRupiahResult" readonly placeholder="Rp 0" class="w-full px-3 py-2 bg-emerald-500/20 border border-emerald-400/40 rounded-xl text-emerald-300 font-display font-bold text-sm focus:outline-none">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Category Breakdown Bars -->
+                            <div class="lg:col-span-7 bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
+                                <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-8 h-8 rounded-full bg-rose-100 text-aptivo-coral flex items-center justify-center font-bold text-sm">
+                                            <i class="fa-solid fa-chart-simple"></i>
+                                        </div>
+                                        <h3 class="font-display font-bold text-xs text-slate-800">Distribusi Jenis Pengeluaran</h3>
+                                    </div>
+                                    <span class="text-[10px] text-slate-400">Prosentase Belanja</span>
+                                </div>
+
+                                <div id="categoryBreakdownBars" class="space-y-2.5 pt-1">
+                                    <!-- Dynamic breakdown bars rendered via JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Full Spreadsheet Expense Data Table -->
+                        <div class="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200 shadow-sm space-y-4">
+                            <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-sm">
+                                        <i class="fa-solid fa-table-list"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-display font-bold text-sm text-slate-800">Tabel Jurnal Pengeluaran Lengkap</h3>
+                                        <p class="text-[10px] text-slate-500">Data sinkronisasi dari Google Sheet milikmu</p>
+                                    </div>
+                                </div>
+
+                                <!-- Search, Filter & Export Tools -->
+                                <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+                                    <div class="relative flex-1 sm:w-40">
+                                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                                        <input type="text" id="dashSearchInput" placeholder="Cari barang..." oninput="renderDashboardTable()" class="w-full pl-8 pr-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:outline-none focus:border-aptivo-coral">
+                                    </div>
+                                    <select id="dashCategoryFilter" onchange="renderDashboardTable()" class="px-2 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none">
+                                        <option value="ALL">Semua Kategori</option>
+                                        <option value="food">🍱 Food</option>
+                                        <option value="drinks">🥤 Drinks</option>
+                                        <option value="fashion">👕 Fashion</option>
+                                        <option value="toys">🧸 Toys</option>
+                                        <option value="Oleh-oleh (etc.)">🎁 Oleh-oleh</option>
+                                        <option value="Lainnya">📦 Lainnya</option>
+                                    </select>
+                                    <!-- Export Buttons -->
+                                    <div class="flex items-center space-x-1.5 shrink-0">
+                                        <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition" title="Download Excel (.xlsx)">
+                                            <i class="fa-solid fa-file-excel"></i> Excel
+                                        </button>
+                                        <button onclick="exportToPDF()" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition" title="Download PDF Report">
+                                            <i class="fa-solid fa-file-pdf"></i> PDF
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Table Wrapper -->
+                            <div class="overflow-x-auto rounded-2xl border border-slate-200">
+                                <table class="w-full text-left text-xs text-slate-700">
+                                    <thead class="bg-slate-100 text-slate-600 font-display uppercase text-[10px] tracking-wider border-b border-slate-200">
+                                        <tr>
+                                            <th class="p-3 text-center">No</th>
+                                            <th class="p-3">Hari, Tanggal</th>
+                                            <th class="p-3">Tempat</th>
+                                            <th class="p-3">Nama Makanan/Barang</th>
+                                            <th class="p-3">Jenis</th>
+                                            <th class="p-3 text-center">Qty</th>
+                                            <th class="p-3 text-right">Harga (Rp)</th>
+                                            <th class="p-3 text-right">Harga (¥ Yen)</th>
+                                            <th class="p-3 text-center">Dokumentasi</th>
+                                            <th class="p-3 text-center">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dashTableBody" class="divide-y divide-slate-100">
+                                        <!-- Dynamic rows loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Edit Transaction Modal -->
+        <div id="editModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl p-5 sm:p-6 max-w-lg w-full relative shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-sm">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-slate-800 text-base">Edit Data Pengeluaran</h3>
+                    </div>
+                    <button onclick="closeEditModal()" class="text-slate-400 hover:text-rose-600 text-lg transition">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <form onsubmit="handleSaveEdit(event)" class="space-y-3 text-xs">
+                    <input type="hidden" id="editItemId">
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Tanggal</label>
+                            <input type="date" id="editTanggal" required class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-aptivo-coral">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Tempat Pembelian</label>
+                            <input type="text" id="editTempat" required class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-aptivo-coral">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Nama Barang / Makanan</label>
+                        <input type="text" id="editBarang" required class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-aptivo-coral">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Jenis Pengeluaran</label>
+                            <select id="editJenis" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-aptivo-coral">
+                                <option value="food">🍱 Food</option>
+                                <option value="drinks">🥤 Drinks</option>
+                                <option value="fashion">👕 Fashion</option>
+                                <option value="toys">🧸 Toys</option>
+                                <option value="Oleh-oleh (etc.)">🎁 Oleh-oleh (etc.)</option>
+                                <option value="Lainnya">📦 Lainnya</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Banyaknya (Qty)</label>
+                            <input type="number" id="editBanyak" min="1" required class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-aptivo-coral">
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                        <label class="block font-semibold text-slate-700">Harga / Nominal</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] text-slate-500 mb-0.5">Rupiah (Rp)</label>
+                                <input type="number" id="editHargaRp" placeholder="0" class="w-full px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-bold text-slate-800">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-500 mb-0.5">Yen Jepang (¥)</label>
+                                <input type="number" id="editHargaYen" placeholder="0" class="w-full px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-bold text-slate-800">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end space-x-2 pt-2">
+                        <button type="button" onclick="closeEditModal()" class="px-4 py-2 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition">
+                            Batal
+                        </button>
+                        <button type="submit" id="btnSaveEdit" class="px-5 py-2 bg-aptivo-coral hover:bg-rose-600 text-white font-bold rounded-xl shadow-md transition flex items-center gap-1.5">
+                            <span>Simpan Perubahan</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Custom Modal (Replaces native confirm) -->
+        <div id="deleteConfirmModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center space-y-4 shadow-2xl" onclick="event.stopPropagation()">
+                <div class="w-14 h-14 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto text-2xl">
+                    <i class="fa-solid fa-trash-can"></i>
+                </div>
+                <div>
+                    <h3 class="font-display font-bold text-slate-800 text-base">Hapus Data Pengeluaran?</h3>
+                    <p class="text-xs text-slate-500 mt-1" id="deleteConfirmText">Apakah kamu yakin ingin menghapus item ini dari Google Spreadsheet?</p>
+                </div>
+                <div class="flex items-center justify-center gap-2 pt-2">
+                    <button type="button" onclick="closeDeleteModal()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition">
+                        Batal
+                    </button>
+                    <button type="button" id="btnConfirmDeleteAction" onclick="executeConfirmedDelete()" class="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs shadow-md transition">
+                        Ya, Hapus
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Notification Toast Modal -->
+        <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center space-x-3 text-xs opacity-0 transition-opacity duration-300 pointer-events-none z-50">
+            <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+            <span id="toastMessage">Pesan Notifikasi</span>
+        </div>
+
+        <!-- Image Lightbox Modal -->
+        <div id="imageModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4" onclick="closeImageModal()">
+            <div class="bg-white rounded-3xl p-3 max-w-lg w-full relative overflow-hidden shadow-2xl" onclick="event.stopPropagation()">
+                <button onclick="closeImageModal()" class="absolute top-4 right-4 bg-slate-900/70 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm z-10 hover:bg-rose-600 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <img id="modalImageTarget" src="" alt="Foto Struk Full" class="w-full max-h-[75vh] object-contain rounded-2xl" onerror="handleImageError(this)">
+                <p id="modalImageCaption" class="text-center text-xs font-semibold text-slate-700 mt-2">Foto Dokumentasi Belanjaan</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ============================================================================
+        // URL WEB APP GOOGLE APPS SCRIPT OVERSEAS JEPANG (RESMI & TERKUNCI PERMANEN)
+        // ============================================================================
+        const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbwwEh7E2TxAB3KmSTAyyjfKw-fF2ks_z1X4lZ1mDnR1uHjMnQzi6zHR8GcmBBq0vHGV/exec";
+
+        function getActiveGasUrl() {
+            return DEFAULT_GAS_URL;
+        }
+
+        // Database 23 Murid Overseas Jepang - Al Mazaya Islamic School
+        const studentDatabase = [
+            { fullName: "M. Alif Rizqullah", class: "11.1", keywords: ["alif", "m alif", "m. alif", "alif rizqullah"] },
+            { fullName: "Nafil Zaki Faisal", class: "11.1", keywords: ["nafil", "zaki", "faisal"] },
+            { fullName: "M. Salman Al Farisi", class: "11.1", keywords: ["salman", "farisi", "al farisi", "m salman"] },
+            { fullName: "Fatimatuz Azzahra", class: "11.2", keywords: ["fatimatuz", "azzahra", "fatimah", "zahra"] },
+            { fullName: "Az Zeta Keira Effendi", class: "11.2", keywords: ["zeta", "az zeta", "keira", "effendi"] },
+            { fullName: "Kaila Zaskiah Imannina", class: "11.2", keywords: ["kaila", "zaskiah", "imannina"] },
+            { fullName: "M. Dika Firdaus", class: "11.2", keywords: ["dika", "firdaus", "m dika", "m. dika"] },
+            { fullName: "Syahrini Alica Putri", class: "11.2", keywords: ["syahrini", "alica"] },
+            { fullName: "Aliya Saputri", class: "11.2", keywords: ["aliya", "saputri"] },
+            { fullName: "Keysha Aurelia Yusuf", class: "11.2", keywords: ["keysha", "aurelia", "yusuf"] },
+            { fullName: "M. Abid Musyaffa", class: "11.3", keywords: ["abid", "musyaffa", "m abid", "m. abid"] },
+            { fullName: "Aufa Bil Ahdi", class: "11.3", keywords: ["aufa", "bil ahdi", "ahdi"] },
+            { fullName: "Irfan Hafizha", class: "11.3", keywords: ["irfan", "hafizha"] },
+            { fullName: "Putri Asma Ramadhani", class: "11.3", keywords: ["putri asma", "asma", "ramadhani"] },
+            { fullName: "Ahmad Syauqi Abrari", class: "11.3", keywords: ["ahmad", "syauqi", "abrari"] },
+            { fullName: "A. Cirrus Sangjaya Lampan Kr. Moncong", class: "11.3", keywords: ["cirrus", "sangjaya", "lampan", "moncong"] },
+            { fullName: "Nasya Salsa Balqis Aurora", class: "11.3", keywords: ["nasya", "salsa", "balqis", "aurora"] },
+            { fullName: "Ilya Namira Adinda", class: "11.3", keywords: ["ilya", "namira", "adinda"] },
+            { fullName: "Faiha Adzkia Nafisa Putri", class: "8.1", keywords: ["faiha", "adzkia", "nafisa"] },
+            { fullName: "Ghifary Habibi", class: "8.3", keywords: ["ghifary", "habibi"] },
+            { fullName: "M. Alfian Rizqullah", class: "8.2", keywords: ["alfian", "m alfian", "m. alfian", "alfian rizqullah"] },
+            { fullName: "M. Hafiz Ken Arka", class: "9.3", keywords: ["hafiz", "ken", "arka", "m hafiz", "m. hafiz"] },
+            { fullName: "M. Dafi Surya Rizky", class: "8.2", keywords: ["dafi", "surya", "rizky", "m dafi", "m. dafi"] }
+        ];
+
+        let detectedOfficialStudent = null;
+        let currentCurrency = 'RUPIAH';
+        let selectedBase64Image = null;
+        let selectedFileName = '';
+
+        let isDashboardLoggedIn = false;
+        let isAdminLoggedIn = false;
+        let loggedInStudentName = '';
+        let activeView = 'form';
+
+        let localExpensesList = [];
+        let adminAllExpenses = [];
+        let pendingDeleteItemId = null;
+
+        const mathMascots = [
+            {
+                name: "Sakura Math",
+                badge: "π",
+                svg: `<svg viewBox="0 0 100 100" class="w-full h-full p-1">
+                        <path d="M 50 15 C 40 5, 25 20, 35 30 C 20 25, 10 40, 25 50 C 10 60, 20 75, 35 70 C 25 80, 40 95, 50 85 C 60 95, 75 80, 65 70 C 80 75, 90 60, 75 50 C 90 40, 80 25, 65 30 C 75 20, 60 5, 50 15 Z" fill="#FB7185"/>
+                        <circle cx="50" cy="50" r="24" fill="#FFF1F2" />
+                        <circle cx="41" cy="46" r="8" fill="none" stroke="#1E293B" stroke-width="2.5"/>
+                        <circle cx="59" cy="46" r="8" fill="none" stroke="#1E293B" stroke-width="2.5"/>
+                        <line x1="49" y1="46" x2="51" y2="46" stroke="#1E293B" stroke-width="2.5"/>
+                        <circle cx="41" cy="46" r="3" fill="#1E293B"/>
+                        <circle cx="59" cy="46" r="3" fill="#1E293B"/>
+                        <path d="M 44 58 Q 50 64 56 58" fill="none" stroke="#1E293B" stroke-width="2.5" stroke-linecap="round"/>
+                        <circle cx="36" cy="55" r="3" fill="#F43F5E" opacity="0.8"/>
+                        <circle cx="64" cy="55" r="3" fill="#F43F5E" opacity="0.8"/>
+                      </svg>`
+            },
+            {
+                name: "Sensei Pi",
+                badge: "∑",
+                svg: `<svg viewBox="0 0 100 100" class="w-full h-full p-1">
+                        <circle cx="50" cy="55" r="32" fill="#F2C94C"/>
+                        <path d="M 25 32 L 50 20 L 75 32 L 50 42 Z" fill="#1E293B"/>
+                        <rect x="47" y="38" width="6" height="6" fill="#1E293B"/>
+                        <path d="M 70 34 L 75 48" stroke="#E11D48" stroke-width="2"/>
+                        <circle cx="40" cy="55" r="4" fill="#1E293B"/>
+                        <path d="M 56 55 Q 60 51 64 55" fill="none" stroke="#1E293B" stroke-width="2.5" stroke-linecap="round"/>
+                        <path d="M 44 65 Q 50 72 56 65 Z" fill="#1E293B"/>
+                      </svg>`
+            },
+            {
+                name: "Fuji Triangle",
+                badge: "√x",
+                svg: `<svg viewBox="0 0 100 100" class="w-full h-full p-1">
+                        <path d="M 50 15 L 85 80 L 15 80 Z" fill="#3B82F6" rx="10"/>
+                        <path d="M 50 15 L 63 39 L 55 36 L 50 42 L 45 36 L 37 39 Z" fill="#FFFFFF"/>
+                        <circle cx="42" cy="56" r="5.5" fill="#FFFFFF"/>
+                        <circle cx="58" cy="56" r="5.5" fill="#FFFFFF"/>
+                        <circle cx="43" cy="56" r="2.8" fill="#1E293B"/>
+                        <circle cx="59" cy="56" r="2.8" fill="#1E293B"/>
+                        <path d="M 46 68 Q 50 72 54 68" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+                      </svg>`
+            },
+            {
+                name: "Star Formula",
+                badge: "¥",
+                svg: `<svg viewBox="0 0 100 100" class="w-full h-full p-1">
+                        <path d="M 50 10 L 62 38 L 92 38 L 68 56 L 77 85 L 50 67 L 23 85 L 32 56 L 8 38 L 38 38 Z" fill="#E11D48"/>
+                        <circle cx="43" cy="45" r="3.5" fill="#FFFFFF"/>
+                        <circle cx="57" cy="45" r="3.5" fill="#FFFFFF"/>
+                        <path d="M 46 53 Q 50 57 54 53" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+                      </svg>`
+            }
+        ];
+
+        let currentMascotIndex = 0;
+
+        function cycleMathMascot() {
+            currentMascotIndex = (currentMascotIndex + 1) % mathMascots.length;
+            renderMascot();
+            showToast(`Mascot Matematika: ${mathMascots[currentMascotIndex].name}! 🌸📐`, "success");
+        }
+
+        function renderMascot() {
+            const mascot = mathMascots[currentMascotIndex];
+            document.getElementById('mascotSVG').innerHTML = mascot.svg;
+            document.getElementById('mascotBadge').innerText = mascot.badge;
+            document.getElementById('mascotNameTag').innerText = mascot.name;
+        }
+
+        window.onload = function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('inputTanggal').value = today;
+
+            renderMascot();
+            updateClock();
+            setInterval(updateClock, 30000);
+
+            loadSavedData();
+            loadStoredExpenses();
+            switchViewSection('form');
+        };
+
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('currentTime').innerText = `${hours}:${minutes}`;
+        }
+
+        function loadSavedData() {
+            try {
+                const savedNama = localStorage.getItem('aptivo_jp_nama') || '';
+                const savedKelas = localStorage.getItem('aptivo_jp_kelas') || '';
+                if (savedNama) {
+                    document.getElementById('inputNama').value = savedNama;
+                    saveIdentityLocal();
+                }
+                if (savedKelas && !document.getElementById('inputKelas').value) {
+                    document.getElementById('inputKelas').value = savedKelas;
+                }
+            } catch(e) {}
+        }
+
+        function toggleEditIdentity() {
+            const inputs = document.getElementById('identityInputs');
+            const summary = document.getElementById('identitySummary');
+            const btn = document.getElementById('btnEditIdentity');
+
+            if (inputs.classList.contains('hidden')) {
+                inputs.classList.remove('hidden');
+                summary.classList.add('hidden');
+                btn.innerText = "Ubah";
+            } else {
+                inputs.classList.add('hidden');
+                summary.classList.remove('hidden');
+                const rawNama = document.getElementById('inputNama').value.trim();
+                const rawKelas = document.getElementById('inputKelas').value.trim();
+                const effectiveName = detectedOfficialStudent ? detectedOfficialStudent.fullName : (rawNama || '-');
+                document.getElementById('summaryNama').innerText = `Nama: ${effectiveName}`;
+                document.getElementById('summaryKelas').innerText = `Kelas: ${rawKelas || '-'}`;
+                btn.innerText = "Simpan";
+            }
+        }
+
+        function switchViewSection(target) {
+            activeView = target;
+            const viewForm = document.getElementById('viewForm');
+            const viewDash = document.getElementById('viewDashboard');
+
+            const cardForm = document.getElementById('menuCardForm');
+            const cardDash = document.getElementById('menuCardDash');
+
+            const badgeForm = document.getElementById('badgeFormActive');
+            const badgeDash = document.getElementById('badgeDashActive');
+
+            if (target === 'form') {
+                viewForm.classList.remove('hidden');
+                viewDash.classList.add('hidden');
+
+                cardForm.className = "bento-card cursor-pointer rounded-3xl p-4 sm:p-5 border-2 transition-all relative overflow-hidden bg-gradient-to-br from-rose-50/80 via-white to-orange-50/60 border-aptivo-coral shadow-md";
+                cardDash.className = "bento-card cursor-pointer rounded-3xl p-4 sm:p-5 border-2 transition-all relative overflow-hidden bg-white hover:bg-slate-50 border-slate-200/80 shadow-sm";
+
+                badgeForm.className = "text-[10px] font-bold px-2.5 py-1 rounded-full bg-aptivo-coral text-white shadow-xs";
+                badgeForm.innerHTML = `<i class="fa-solid fa-check mr-0.5"></i> Dibuka`;
+
+                badgeDash.className = "text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-500";
+                badgeDash.innerText = "Password: AMZ";
+
+            } else if (target === 'dashboard') {
+                viewForm.classList.add('hidden');
+                viewDash.classList.remove('hidden');
+
+                cardDash.className = "bento-card cursor-pointer rounded-3xl p-4 sm:p-5 border-2 transition-all relative overflow-hidden bg-gradient-to-br from-indigo-50/80 via-white to-blue-50/60 border-indigo-600 shadow-md";
+                cardForm.className = "bento-card cursor-pointer rounded-3xl p-4 sm:p-5 border-2 transition-all relative overflow-hidden bg-white hover:bg-slate-50 border-slate-200/80 shadow-sm";
+
+                badgeDash.className = "text-[10px] font-bold px-2.5 py-1 rounded-full bg-indigo-600 text-white shadow-xs";
+                badgeDash.innerHTML = `<i class="fa-solid fa-check mr-0.5"></i> Dibuka`;
+
+                badgeForm.className = "text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-500";
+                badgeForm.innerText = "Klik untuk Buka";
+
+                if (!isDashboardLoggedIn && !isAdminLoggedIn) {
+                    const savedNama = localStorage.getItem('aptivo_jp_nama') || '';
+                    if (savedNama) {
+                        document.getElementById('dashInputNama').value = detectedOfficialStudent ? detectedOfficialStudent.fullName : savedNama;
+                    }
+                } else if (isAdminLoggedIn) {
+                    fetchAdminData();
+                } else {
+                    renderDashboardData();
+                }
+            }
+        }
+
+        function formatImageUrl(rawUrl) {
+            if (!rawUrl || rawUrl === '-' || typeof rawUrl !== 'string') return '';
+            var url = rawUrl.trim();
+            if (!url) return '';
+
+            var match = url.match(/id=([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) {
+                return "https://lh3.googleusercontent.com/d/" + match[1];
+            }
+            return url;
+        }
+
+        function handleImageError(imgEl) {
+            if (!imgEl) return;
+            var src = imgEl.src || '';
+            var match = src.match(/d\/([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) {
+                imgEl.src = "https://drive.google.com/thumbnail?id=" + match[1] + "&sz=w800";
+            } else {
+                imgEl.alt = "Foto Struk Belanjaan";
+            }
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            selectedFileName = file.name;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 1000;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > MAX_WIDTH) {
+                        height = Math.round((height * MAX_WIDTH) / width);
+                        width = MAX_WIDTH;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    selectedBase64Image = canvas.toDataURL('image/jpeg', 0.75);
+
+                    document.getElementById('imagePreview').src = selectedBase64Image;
+                    document.getElementById('uploadPlaceholder').classList.add('hidden');
+                    document.getElementById('previewContainer').classList.remove('hidden');
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removePhoto(event) {
+            if (event) event.stopPropagation();
+            selectedBase64Image = null;
+            selectedFileName = '';
+            document.getElementById('inputFotoFile').value = '';
+            document.getElementById('imagePreview').src = '';
+            document.getElementById('previewContainer').classList.add('hidden');
+            document.getElementById('uploadPlaceholder').classList.remove('hidden');
+        }
+
+        function setCurrency(mode) {
+            currentCurrency = mode;
+            const btnRupiah = document.getElementById('btnCurrencyRupiah');
+            const btnYen = document.getElementById('btnCurrencyYen');
+            const symbol = document.getElementById('currencySymbol');
+
+            if (mode === 'RUPIAH') {
+                btnRupiah.className = "py-2.5 px-3 rounded-xl font-display font-semibold text-xs border flex items-center justify-center gap-1.5 transition bg-aptivo-coral text-white border-aptivo-coral shadow-sm";
+                btnYen.className = "py-2.5 px-3 rounded-xl font-display font-semibold text-xs border flex items-center justify-center gap-1.5 transition bg-white text-slate-600 border-slate-200 hover:bg-slate-100";
+                symbol.innerText = "Rp";
+            } else {
+                btnYen.className = "py-2.5 px-3 rounded-xl font-display font-semibold text-xs border flex items-center justify-center gap-1.5 transition bg-aptivo-coral text-white border-aptivo-coral shadow-sm";
+                btnRupiah.className = "py-2.5 px-3 rounded-xl font-display font-semibold text-xs border flex items-center justify-center gap-1.5 transition bg-white text-slate-600 border-slate-200 hover:bg-slate-100";
+                symbol.innerText = "¥";
+            }
+        }
+
+        function findMatchingStudent(queryText) {
+            if (!queryText || queryText.trim().length < 2) return null;
+            const qLower = queryText.trim().toLowerCase();
+
+            // 1. Cek kecocokan nama lengkap persis terlebih dahulu
+            const exactMatch = studentDatabase.find(s => s.fullName.toLowerCase() === qLower);
+            if (exactMatch) return exactMatch;
+
+            // 2. Cek berdasarkan kata kunci panggilan atau bagian nama
+            return studentDatabase.find(student => {
+                const fullLower = student.fullName.toLowerCase();
+                if (fullLower.includes(qLower) || qLower.includes(fullLower)) return true;
+                return student.keywords.some(kw => qLower.includes(kw) || kw.includes(qLower));
+            }) || null;
+        }
+
+        function saveIdentityLocal() {
+            const rawInput = document.getElementById('inputNama').value.trim();
+            const badge = document.getElementById('detectedNameBadge');
+            const fullNameText = document.getElementById('detectedFullNameText');
+            const classText = document.getElementById('detectedClassText');
+            const inputKelas = document.getElementById('inputKelas');
+
+            detectedOfficialStudent = findMatchingStudent(rawInput);
+
+            if (detectedOfficialStudent) {
+                fullNameText.innerText = detectedOfficialStudent.fullName;
+                classText.innerText = `Kelas ${detectedOfficialStudent.class}`;
+                badge.classList.remove('hidden');
+                inputKelas.value = detectedOfficialStudent.class;
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            const effectiveCallName = detectedOfficialStudent ? detectedOfficialStudent.fullName : (rawInput || 'Murid');
+
+            if (rawInput) {
+                document.getElementById('displayGreeting').innerText = `Assalamu'alaikum, ${effectiveCallName}! 👋`;
+                document.getElementById('statTargetNama').innerText = detectedOfficialStudent ? `Sheet "${detectedOfficialStudent.fullName}"` : `Sheet "${rawInput}"`;
+                document.getElementById('dashInputNama').value = effectiveCallName;
+            } else {
+                document.getElementById('displayGreeting').innerText = `Assalamu'alaikum! 👋`;
+                document.getElementById('statTargetNama').innerText = `Tab Nama Murid`;
+            }
+
+            try {
+                localStorage.setItem('aptivo_jp_nama', rawInput);
+                localStorage.setItem('aptivo_jp_kelas', inputKelas.value);
+            } catch(e) {}
+        }
+
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const rawNama = document.getElementById('inputNama').value.trim();
+            const kelas = document.getElementById('inputKelas').value.trim();
+            const gasUrl = getActiveGasUrl();
+
+            if (!rawNama) {
+                showToast("Nama murid belum diisi!", "error");
+                document.getElementById('inputNama').focus();
+                return;
+            }
+
+            const finalNama = detectedOfficialStudent ? detectedOfficialStudent.fullName : rawNama;
+
+            const tanggal = document.getElementById('inputTanggal').value;
+            const tempat = document.getElementById('inputTempat').value;
+            const barang = document.getElementById('inputBarang').value;
+            const jenis = document.getElementById('inputJenis').value;
+            const banyak = document.getElementById('inputBanyak').value;
+            const harga = document.getElementById('inputHarga').value;
+
+            const newEntry = {
+                action: "add",
+                id: Date.now(),
+                rowIndex: localExpensesList.length + 9,
+                nama: finalNama,
+                kelas: kelas,
+                tanggal: tanggal,
+                tempat: tempat,
+                barang: barang,
+                jenis: jenis,
+                banyak: Number(banyak) || 1,
+                hargaRupiah: currentCurrency === 'RUPIAH' ? Number(harga) : 0,
+                hargaYen: currentCurrency === 'YEN' ? Number(harga) : 0,
+                // Menyertakan hargaYuan juga agar 100% kompatibel dengan format GAS lama maupun baru
+                hargaYuan: currentCurrency === 'YEN' ? Number(harga) : 0,
+                fotoBase64: selectedBase64Image || "",
+                fotoName: selectedFileName || "belanjaan_jepang_struk.jpg"
+            };
+
+            const btnSubmit = document.getElementById('btnSubmit');
+            const originalBtnContent = btnSubmit.innerHTML;
+
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> <span>Mengunggah Data & Foto...</span>`;
+
+            try {
+                await fetch(gasUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newEntry)
+                });
+
+                // Simpan juga ke state lokal agar langsung tampil secara instan
+                localExpensesList.push(newEntry);
+                saveStoredExpenses();
+
+                showToast(`Data pengeluaran "${barang}" berhasil dikirim ke Spreadsheet!`, "success");
+
+                document.getElementById('inputTempat').value = '';
+                document.getElementById('inputBarang').value = '';
+                document.getElementById('inputHarga').value = '';
+                removePhoto();
+
+                if (isDashboardLoggedIn || isAdminLoggedIn) {
+                    setTimeout(() => { refreshDashboardData(); }, 1500);
+                }
+
+            } catch (error) {
+                console.error("Error submitting form:", error);
+                showToast("Gagal mengirim data! Periksa koneksi internet Anda.", "error");
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = originalBtnContent;
+            }
+        }
+
+        function handleDashboardLogin(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('dashInputNama').value.trim();
+            const passwordInput = document.getElementById('dashInputPassword').value.trim();
+
+            if (!nameInput) {
+                showToast("Masukkan nama panggilan / user ID terlebih dahulu!", "error");
+                return;
+            }
+
+            // ADMIN MODE
+            if (nameInput.toLowerCase() === 'admin' && passwordInput.toLowerCase() === 'admin') {
+                isAdminLoggedIn = true;
+                isDashboardLoggedIn = false;
+
+                document.getElementById('dashLoginModal').classList.add('hidden');
+                document.getElementById('dashMainContent').classList.add('hidden');
+                document.getElementById('adminMainContent').classList.remove('hidden');
+
+                fetchAdminData();
+                showToast("Selamat datang di Panel Admin Guru (Overseas Jepang)! 👑", "success");
+                return;
+            }
+
+            // NORMAL MURID LOGIN
+            if (passwordInput.toUpperCase() === 'AMZ') {
+                isDashboardLoggedIn = true;
+                isAdminLoggedIn = false;
+
+                const matchedStudent = findMatchingStudent(nameInput);
+                loggedInStudentName = matchedStudent ? matchedStudent.fullName : nameInput;
+
+                document.getElementById('dashLoginModal').classList.add('hidden');
+                document.getElementById('adminMainContent').classList.add('hidden');
+                document.getElementById('dashMainContent').classList.remove('hidden');
+                document.getElementById('btnAdminReturn').classList.add('hidden');
+
+                const savedClass = matchedStudent ? matchedStudent.class : (localStorage.getItem('aptivo_jp_kelas') || '-');
+                document.getElementById('dashUserDisplay').innerText = `Dashboard: ${loggedInStudentName}`;
+                document.getElementById('dashClassDisplay').innerText = `Kelas: ${savedClass} | Mapel Matematika Al Mazaya`;
+
+                fetchExpensesFromGAS(loggedInStudentName);
+                showToast(`Selamat datang di Dashboard, ${loggedInStudentName}! 📊`, "success");
+            } else {
+                showToast("Password salah! Gunakan AMZ untuk murid.", "error");
+            }
+        }
+
+        function logoutDashboard() {
+            isDashboardLoggedIn = false;
+            isAdminLoggedIn = false;
+            document.getElementById('dashLoginModal').classList.remove('hidden');
+            document.getElementById('dashMainContent').classList.add('hidden');
+            document.getElementById('adminMainContent').classList.add('hidden');
+            document.getElementById('dashInputPassword').value = '';
+            showToast("Berhasil keluar dari Dashboard", "success");
+        }
+
+        function returnToAdminView() {
+            if (isAdminLoggedIn) {
+                document.getElementById('dashMainContent').classList.add('hidden');
+                document.getElementById('adminMainContent').classList.remove('hidden');
+            }
+        }
+
+        function getYenAmount(item) {
+            return Number(item.hargaYen !== undefined ? item.hargaYen : (item.hargaYuan || 0));
+        }
+
+        async function fetchAdminData() {
+            const syncIcon = document.getElementById('adminSyncIcon');
+            if (syncIcon) syncIcon.classList.add('animate-spin');
+
+            try {
+                const url = `${getActiveGasUrl()}?mode=admin`;
+                const response = await fetch(url);
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result && Array.isArray(result.expenses)) {
+                        adminAllExpenses = result.expenses;
+                        renderAdminDashboard();
+                        showToast("Data seluruh murid Jepang berhasil diperbarui!", "success");
+                    }
+                }
+            } catch (err) {
+                console.warn("Gagal menarik data admin dari GAS, menampilkan data lokal:", err);
+                adminAllExpenses = [...localExpensesList];
+                renderAdminDashboard();
+            } finally {
+                if (syncIcon) syncIcon.classList.remove('animate-spin');
+            }
+        }
+
+        function renderAdminDashboard() {
+            let totalSubmittedCount = 0;
+            let grandTotalYen = 0;
+            let grandTotalRp = 0;
+
+            const gridContainer = document.getElementById('adminStudentsGrid');
+            gridContainer.innerHTML = '';
+
+            const calcRate = Number(document.getElementById('calcRateInput')?.value) || 115.35;
+
+            studentDatabase.forEach(student => {
+                const stLower = student.fullName.toLowerCase();
+                const studentItems = adminAllExpenses.filter(item => {
+                    const itemNama = (item.nama || '').toLowerCase();
+                    return itemNama.includes(stLower) || stLower.includes(itemNama) ||
+                           student.keywords.some(kw => itemNama.includes(kw));
+                });
+
+                const hasSubmitted = studentItems.length > 0;
+                if (hasSubmitted) totalSubmittedCount++;
+
+                let stYen = 0;
+                let stRp = 0;
+                studentItems.forEach(i => {
+                    stYen += getYenAmount(i);
+                    stRp += Number(i.hargaRupiah || 0);
+                });
+
+                grandTotalYen += stYen;
+                grandTotalRp += stRp;
+
+                const estRpFromYen = Math.round(stYen * calcRate);
+                const totalCalculatedRp = stRp + estRpFromYen;
+
+                const cardHtml = `
+                    <div class="p-4 rounded-2xl border ${hasSubmitted ? 'border-emerald-200 bg-emerald-50/40' : 'border-slate-200 bg-slate-50'} space-y-2">
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <h4 class="font-bold text-xs text-slate-800">${student.fullName}</h4>
+                                <p class="text-[10px] text-slate-500">Kelas ${student.class}</p>
+                            </div>
+                            <span class="text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0 ${hasSubmitted ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}">
+                                ${hasSubmitted ? `${studentItems.length} Item` : 'Belum Input'}
+                            </span>
+                        </div>
+
+                        <div class="text-[11px] font-semibold flex justify-between text-slate-600 pt-1 border-t border-slate-200/60">
+                            <span>Yen: <b class="text-rose-600">¥${stYen.toLocaleString('id-ID')}</b></span>
+                            <span>Est: <b class="text-emerald-600">Rp ${totalCalculatedRp.toLocaleString('id-ID')}</b></span>
+                        </div>
+
+                        ${hasSubmitted ? `
+                            <button onclick="inspectStudentJournal('${student.fullName.replace(/'/g, "\\'")}')" class="w-full mt-1 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[11px] rounded-xl transition">
+                                <i class="fa-solid fa-eye mr-1"></i> Inspeksi Jurnal
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+                gridContainer.innerHTML += cardHtml;
+            });
+
+            document.getElementById('adminStatTotalMurid').innerText = studentDatabase.length;
+            document.getElementById('adminStatSubmittedCount').innerText = `${totalSubmittedCount} / ${studentDatabase.length}`;
+            document.getElementById('adminStatGrandYen').innerText = `¥${grandTotalYen.toLocaleString('id-ID')}`;
+
+            const totalEstAllRp = grandTotalRp + Math.round(grandTotalYen * calcRate);
+            document.getElementById('adminStatGrandRupiah').innerText = `Rp ${totalEstAllRp.toLocaleString('id-ID')}`;
+        }
+
+        function inspectStudentJournal(studentFullName) {
+            loggedInStudentName = studentFullName;
+            const stObj = studentDatabase.find(s => s.fullName === studentFullName);
+
+            localExpensesList = adminAllExpenses.filter(i => {
+                const iNama = (i.nama || '').toLowerCase();
+                const stLower = studentFullName.toLowerCase();
+                if (iNama.includes(stLower) || stLower.includes(iNama)) return true;
+                return stObj ? stObj.keywords.some(kw => iNama.includes(kw)) : false;
+            });
+
+            document.getElementById('adminMainContent').classList.add('hidden');
+            document.getElementById('dashMainContent').classList.remove('hidden');
+            document.getElementById('btnAdminReturn').classList.remove('hidden');
+
+            document.getElementById('dashUserDisplay').innerText = `Inspeksi: ${studentFullName}`;
+            document.getElementById('dashClassDisplay').innerText = `Kelas: ${stObj ? stObj.class : '-'} | Mode Inspeksi Guru`;
+
+            renderDashboardData();
+        }
+
+        function exportAllStudentsExcel() {
+            if (adminAllExpenses.length === 0) {
+                showToast("Belum ada data pengeluaran murid untuk di-export", "error");
+                return;
+            }
+
+            const exportData = adminAllExpenses.map((item, index) => ({
+                'No': index + 1,
+                'Nama Murid': item.nama,
+                'Kelas': item.kelas,
+                'Tanggal': item.tanggal,
+                'Tempat Pembelian': item.tempat,
+                'Nama Makanan / Barang': item.barang,
+                'Jenis Pengeluaran': item.jenis,
+                'Banyaknya (Qty)': item.banyak || 1,
+                'Harga (Rp)': item.hargaRupiah || 0,
+                'Harga (Yen ¥)': getYenAmount(item)
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Rekap Overseas Jepang");
+
+            XLSX.writeFile(workbook, `Rekap_Overseas_Jepang_Seluruh_Murid_AlMazaya.xlsx`);
+            showToast("File Rekap Excel Jepang berhasil didownload!", "success");
+        }
+
+        function loadStoredExpenses() {
+            try {
+                const stored = localStorage.getItem('aptivo_jp_expenses');
+                if (stored) {
+                    localExpensesList = JSON.parse(stored);
+                }
+            } catch(e) {
+                localExpensesList = [];
+            }
+        }
+
+        function saveStoredExpenses() {
+            try {
+                localStorage.setItem('aptivo_jp_expenses', JSON.stringify(localExpensesList));
+            } catch(e) {}
+        }
+
+        function getFilteredUserItems() {
+            const userLower = loggedInStudentName.toLowerCase();
+            const matchedStudent = findMatchingStudent(loggedInStudentName);
+
+            return localExpensesList.filter(item => {
+                const itemNama = (item.nama || '').toLowerCase();
+                if (itemNama.includes(userLower) || userLower.includes(itemNama)) return true;
+                if (matchedStudent) {
+                    return matchedStudent.keywords.some(kw => itemNama.includes(kw));
+                }
+                return false;
+            });
+        }
+
+        function renderDashboardData() {
+            const userItems = getFilteredUserItems();
+
+            let totalQty = 0;
+            let totalYen = 0;
+            let totalRp = 0;
+            const categoryCounts = {};
+
+            userItems.forEach(item => {
+                totalQty += Number(item.banyak || 1);
+                totalYen += getYenAmount(item);
+                totalRp += Number(item.hargaRupiah || 0);
+
+                const cat = item.jenis || 'Lainnya';
+                categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+            });
+
+            const calcRate = Number(document.getElementById('calcRateInput').value) || 115.35;
+            const estRpFromYen = Math.round(totalYen * calcRate);
+            const grandTotalRp = totalRp + estRpFromYen;
+
+            let topCat = '-';
+            let maxCount = 0;
+            for (const [cat, count] of Object.entries(categoryCounts)) {
+                if (count > maxCount) {
+                    maxCount = count;
+                    topCat = cat;
+                }
+            }
+
+            document.getElementById('statTotalItems').innerText = userItems.length;
+            document.getElementById('statTotalYen').innerText = `¥${totalYen.toLocaleString('id-ID')}`;
+            document.getElementById('statTotalRupiah').innerText = `Rp ${grandTotalRp.toLocaleString('id-ID')}`;
+            document.getElementById('statTopCategory').innerText = topCat !== '-' ? topCat : '-';
+
+            document.getElementById('calcYenInput').value = totalYen > 0 ? totalYen : '';
+            calculateCurrencyConverter();
+
+            renderCategoryBars(categoryCounts, userItems.length);
+            renderDashboardTable();
+        }
+
+        function calculateCurrencyConverter() {
+            const yenVal = Number(document.getElementById('calcYenInput').value) || 0;
+            const rateVal = Number(document.getElementById('calcRateInput').value) || 115.35;
+            const converted = Math.round(yenVal * rateVal);
+            document.getElementById('calcRupiahResult').value = `Rp ${converted.toLocaleString('id-ID')}`;
+        }
+
+        function convertYenToRp() {
+            calculateCurrencyConverter();
+        }
+
+        function renderCategoryBars(counts, total) {
+            const container = document.getElementById('categoryBreakdownBars');
+            container.innerHTML = '';
+
+            const categories = [
+                { id: 'food', label: '🍱 Food', color: 'bg-rose-500' },
+                { id: 'drinks', label: '🥤 Drinks', color: 'bg-sky-500' },
+                { id: 'fashion', label: '👕 Fashion', color: 'bg-purple-500' },
+                { id: 'toys', label: '🧸 Toys', color: 'bg-amber-500' },
+                { id: 'Oleh-oleh (etc.)', label: '🎁 Oleh-oleh', color: 'bg-emerald-500' },
+                { id: 'Lainnya', label: '📦 Lainnya', color: 'bg-slate-400' }
+            ];
+
+            if (total === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">Belum ada transaksi pengeluaran terdata.</p>`;
+                return;
+            }
+
+            categories.forEach(cat => {
+                const count = counts[cat.id] || counts[cat.label] || 0;
+                const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+
+                const barHtml = `
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-xs font-semibold text-slate-700">
+                            <span>${cat.label}</span>
+                            <span class="text-slate-500">${count} item (${pct}%)</span>
+                        </div>
+                        <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div class="h-full ${cat.color} transition-all duration-500" style="width: ${pct}%"></div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += barHtml;
+            });
+        }
+
+        function renderDashboardTable() {
+            const tbody = document.getElementById('dashTableBody');
+            tbody.innerHTML = '';
+
+            const searchQuery = (document.getElementById('dashSearchInput')?.value || '').toLowerCase();
+            const categoryFilter = document.getElementById('dashCategoryFilter')?.value || 'ALL';
+
+            let filteredList = getFilteredUserItems();
+
+            if (searchQuery) {
+                filteredList = filteredList.filter(item =>
+                    (item.barang || '').toLowerCase().includes(searchQuery) ||
+                    (item.tempat || '').toLowerCase().includes(searchQuery)
+                );
+            }
+
+            if (categoryFilter !== 'ALL') {
+                filteredList = filteredList.filter(item => (item.jenis || '') === categoryFilter);
+            }
+
+            if (filteredList.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="10" class="p-6 text-center text-slate-400 text-xs">
+                            Tidak ada data transaksi pengeluaran.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            filteredList.forEach((item, idx) => {
+                const yenAmount = getYenAmount(item);
+                const valRp = item.hargaRupiah ? `Rp ${Number(item.hargaRupiah).toLocaleString('id-ID')}` : '-';
+                const valYen = yenAmount ? `¥${Number(yenAmount).toLocaleString('id-ID')}` : '-';
+
+                let photoHtml = `<span class="text-slate-300">-</span>`;
+                const formattedImg = formatImageUrl(item.fotoBase64);
+
+                if (formattedImg) {
+                    const safeBarang = (item.barang || 'Belanjaan').replace(/'/g, "\\'");
+                    photoHtml = `
+                        <img src="${formattedImg}" alt="Struk" onerror="handleImageError(this)" onclick="openImageModal('${formattedImg}', '${safeBarang}')" class="w-10 h-10 object-cover rounded-lg shadow-sm mx-auto cursor-pointer border border-slate-200 hover:scale-110 transition">
+                    `;
+                }
+
+                const row = `
+                    <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                        <td class="p-3 text-center font-bold text-slate-500">${idx + 1}</td>
+                        <td class="p-3 text-xs font-medium text-slate-700 whitespace-nowrap">${item.tanggal || '-'}</td>
+                        <td class="p-3 text-xs font-semibold text-slate-800">${item.tempat || '-'}</td>
+                        <td class="p-3 text-xs font-bold text-aptivo-coral">${item.barang || '-'}</td>
+                        <td class="p-3 text-xs">
+                            <span class="bg-slate-100 text-slate-700 font-semibold px-2 py-0.5 rounded-full text-[10px]">
+                                ${item.jenis || '-'}
+                            </span>
+                        </td>
+                        <td class="p-3 text-center font-bold text-slate-700">${item.banyak || 1}</td>
+                        <td class="p-3 text-right font-semibold text-emerald-600">${valRp}</td>
+                        <td class="p-3 text-right font-semibold text-rose-600">${valYen}</td>
+                        <td class="p-3 text-center">${photoHtml}</td>
+                        <td class="p-3 text-center">
+                            <div class="flex items-center justify-center space-x-1">
+                                <button onclick="openEditModal(${item.id})" class="w-7 h-7 bg-amber-50 text-amber-600 hover:bg-amber-100 rounded-lg flex items-center justify-center transition" title="Edit Data">
+                                    <i class="fa-solid fa-pen text-[11px]"></i>
+                                </button>
+                                <button onclick="promptDeleteExpense(${item.id})" class="w-7 h-7 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg flex items-center justify-center transition" title="Hapus Data">
+                                    <i class="fa-solid fa-trash-can text-[11px]"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        function openEditModal(itemId) {
+            const item = localExpensesList.find(i => i.id === itemId);
+            if (!item) return;
+
+            document.getElementById('editItemId').value = item.id;
+            document.getElementById('editTanggal').value = item.tanggal || '';
+            document.getElementById('editTempat').value = item.tempat || '';
+            document.getElementById('editBarang').value = item.barang || '';
+            document.getElementById('editJenis').value = item.jenis || 'food';
+            document.getElementById('editBanyak').value = item.banyak || 1;
+            document.getElementById('editHargaRp').value = item.hargaRupiah || '';
+            document.getElementById('editHargaYen').value = getYenAmount(item) || '';
+
+            document.getElementById('editModal').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.add('hidden');
+        }
+
+        async function handleSaveEdit(e) {
+            e.preventDefault();
+            const itemId = Number(document.getElementById('editItemId').value);
+            const index = localExpensesList.findIndex(i => i.id === itemId);
+
+            if (index !== -1) {
+                const item = localExpensesList[index];
+                const newYenVal = Number(document.getElementById('editHargaYen').value) || 0;
+
+                const updatedData = {
+                    action: "update",
+                    rowIndex: item.rowIndex,
+                    nama: item.nama || loggedInStudentName,
+                    tanggal: document.getElementById('editTanggal').value,
+                    tempat: document.getElementById('editTempat').value,
+                    barang: document.getElementById('editBarang').value,
+                    jenis: document.getElementById('editJenis').value,
+                    banyak: Number(document.getElementById('editBanyak').value) || 1,
+                    hargaRupiah: Number(document.getElementById('editHargaRp').value) || 0,
+                    hargaYen: newYenVal,
+                    hargaYuan: newYenVal
+                };
+
+                const btnSave = document.getElementById('btnSaveEdit');
+                const origText = btnSave.innerHTML;
+                btnSave.disabled = true;
+                btnSave.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Menyimpan...`;
+
+                try {
+                    await fetch(getActiveGasUrl(), {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(updatedData)
+                    });
+
+                    localExpensesList[index].tanggal = updatedData.tanggal;
+                    localExpensesList[index].tempat = updatedData.tempat;
+                    localExpensesList[index].barang = updatedData.barang;
+                    localExpensesList[index].jenis = updatedData.jenis;
+                    localExpensesList[index].banyak = updatedData.banyak;
+                    localExpensesList[index].hargaRupiah = updatedData.hargaRupiah;
+                    localExpensesList[index].hargaYen = updatedData.hargaYen;
+                    localExpensesList[index].hargaYuan = updatedData.hargaYuan;
+
+                    saveStoredExpenses();
+                    renderDashboardData();
+                    closeEditModal();
+                    showToast("Data pengeluaran berhasil diperbarui!", "success");
+
+                    setTimeout(() => { refreshDashboardData(); }, 1200);
+
+                } catch(err) {
+                    console.error("Error updating expense:", err);
+                    showToast("Gagal memperbarui data di Google Sheets!", "error");
+                } finally {
+                    btnSave.disabled = false;
+                    btnSave.innerHTML = origText;
+                }
+            }
+        }
+
+        function promptDeleteExpense(itemId) {
+            const item = localExpensesList.find(i => i.id === itemId);
+            if (!item) return;
+
+            pendingDeleteItemId = itemId;
+            document.getElementById('deleteConfirmText').innerText = `Apakah kamu yakin ingin menghapus "${item.barang}" dari Google Spreadsheet?`;
+            document.getElementById('deleteConfirmModal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            pendingDeleteItemId = null;
+            document.getElementById('deleteConfirmModal').classList.add('hidden');
+        }
+
+        async function executeConfirmedDelete() {
+            if (pendingDeleteItemId === null) return;
+            const itemId = pendingDeleteItemId;
+            const item = localExpensesList.find(i => i.id === itemId);
+            closeDeleteModal();
+
+            if (!item) return;
+
+            showToast("Menghapus data dari Google Sheets...", "success");
+
+            try {
+                await fetch(getActiveGasUrl(), {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: "delete",
+                        rowIndex: item.rowIndex,
+                        nama: item.nama || loggedInStudentName
+                    })
+                });
+
+                localExpensesList = localExpensesList.filter(i => i.id !== itemId);
+                saveStoredExpenses();
+                renderDashboardData();
+                showToast("Data pengeluaran berhasil dihapus!", "success");
+
+                setTimeout(() => { refreshDashboardData(); }, 1200);
+
+            } catch(err) {
+                console.error("Error deleting expense:", err);
+                showToast("Gagal menghapus data dari Google Sheets!", "error");
+            }
+        }
+
+        function exportToExcel() {
+            const userItems = getFilteredUserItems();
+
+            if (userItems.length === 0) {
+                showToast("Tidak ada data untuk di-export ke Excel", "error");
+                return;
+            }
+
+            const exportData = userItems.map((item, index) => ({
+                'No': index + 1,
+                'Nama Murid': item.nama,
+                'Kelas': item.kelas,
+                'Tanggal': item.tanggal,
+                'Tempat Pembelian': item.tempat,
+                'Nama Makanan / Barang': item.barang,
+                'Jenis Pengeluaran': item.jenis,
+                'Banyaknya (Qty)': item.banyak || 1,
+                'Harga (Rp)': item.hargaRupiah || 0,
+                'Harga (Yen ¥)': getYenAmount(item)
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Jurnal Pengeluaran Jepang");
+
+            const filename = `Pengeluaran_Jepang_${loggedInStudentName || 'Murid'}.xlsx`;
+            XLSX.writeFile(workbook, filename);
+            showToast("File Excel berhasil didownload!", "success");
+        }
+
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const userItems = getFilteredUserItems();
+
+            if (userItems.length === 0) {
+                showToast("Tidak ada data untuk di-export ke PDF", "error");
+                return;
+            }
+
+            doc.setFontSize(16);
+            doc.setFont("helvetica", "bold");
+            doc.text("AL MAZAYA ISLAMIC SCHOOL", 14, 15);
+
+            doc.setFontSize(11);
+            doc.setFont("helvetica", "normal");
+            doc.text("Laporan Jurnal Pengeluaran - Overseas Japan Math Program", 14, 22);
+
+            const matchedStudent = findMatchingStudent(loggedInStudentName);
+            const studentClass = matchedStudent ? matchedStudent.class : (localStorage.getItem('aptivo_jp_kelas') || '-');
+            doc.setFontSize(10);
+            doc.text(`Nama Murid     : ${loggedInStudentName}`, 14, 30);
+            doc.text(`Kelas          : ${studentClass}`, 14, 35);
+            doc.text(`Tanggal Export : ${new Date().toLocaleDateString('id-ID')}`, 14, 40);
+
+            const tableRows = userItems.map((item, index) => {
+                const yenVal = getYenAmount(item);
+                return [
+                    index + 1,
+                    item.tanggal || '-',
+                    item.tempat || '-',
+                    item.barang || '-',
+                    item.jenis || '-',
+                    item.banyak || 1,
+                    item.hargaRupiah ? `Rp ${Number(item.hargaRupiah).toLocaleString('id-ID')}` : '-',
+                    yenVal ? `¥${Number(yenVal).toLocaleString('id-ID')}` : '-'
+                ];
+            });
+
+            doc.autoTable({
+                startY: 46,
+                head: [['No', 'Tanggal', 'Tempat', 'Nama Barang', 'Jenis', 'Qty', 'Harga (Rp)', 'Harga (¥ Yen)']],
+                body: tableRows,
+                headStyles: { fillColor: [225, 29, 72], textColor: [255, 255, 255], fontStyle: 'bold' },
+                alternateRowStyles: { fillColor: [248, 250, 252] },
+                styles: { fontSize: 8, cellPadding: 3 }
+            });
+
+            const filename = `Laporan_Pengeluaran_Jepang_${loggedInStudentName || 'Murid'}.pdf`;
+            doc.save(filename);
+            showToast("File PDF berhasil didownload!", "success");
+        }
+
+        function refreshDashboardData() {
+            if (isAdminLoggedIn) {
+                fetchAdminData();
+            } else if (loggedInStudentName) {
+                fetchExpensesFromGAS(loggedInStudentName);
+            } else {
+                renderDashboardData();
+            }
+        }
+
+        async function fetchExpensesFromGAS(studentName) {
+            if (!studentName) return;
+            const syncIcon = document.getElementById('dashSyncIcon');
+            if (syncIcon) syncIcon.classList.add('animate-spin');
+
+            try {
+                const url = `${getActiveGasUrl()}?nama=${encodeURIComponent(studentName)}`;
+                const response = await fetch(url);
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result && Array.isArray(result.expenses)) {
+                        localExpensesList = result.expenses;
+                        saveStoredExpenses();
+                        showToast("Data berhasil disinkronkan dari Google Sheets!", "success");
+                    }
+                }
+            } catch (err) {
+                console.warn("Sinkronisasi GAS gagal, menggunakan data lokal:", err);
+            } finally {
+                if (syncIcon) syncIcon.classList.remove('animate-spin');
+                renderDashboardData();
+            }
+        }
+
+        function openImageModal(imgSrc, title) {
+            document.getElementById('modalImageTarget').src = imgSrc;
+            document.getElementById('modalImageCaption').innerText = `Dokumentasi Belanjaan: ${title}`;
+            document.getElementById('imageModal').classList.remove('hidden');
+        }
+
+        function closeImageModal() {
+            document.getElementById('imageModal').classList.add('hidden');
+        }
+
+        function showToast(message, type = "success") {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMsg.innerText = message;
+
+            if (type === "success") {
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-base";
+            } else {
+                toastIcon.className = "fa-solid fa-circle-exclamation text-rose-400 text-base";
+            }
+
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
